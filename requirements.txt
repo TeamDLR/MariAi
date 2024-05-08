@@ -1,4 +1,2 @@
-deepface
-tkinter
 matplotlib
-pickle5
+pre-commit
