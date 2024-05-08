@@ -6,7 +6,7 @@ from external.ActionRecognition import action_recognition
 
 
 def do_nothing():
-    print("This button does nothing.")
+    print("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
 
 window = tkinter.Tk()
