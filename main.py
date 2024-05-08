@@ -1,13 +1,14 @@
-from external.ActionRecognition import action_recognition
-
 # from external.TTSRecognition import text_to_speech
 # and so on...
 import tkinter
 
+from external.ActionRecognition import action_recognition
+
 
 def do_nothing():
     print("This button does nothing.")
-    
+
+
 window = tkinter.Tk()
 window.title("Axela - your personal assistant")
 
