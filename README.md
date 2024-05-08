@@ -6,7 +6,6 @@ Axela is your personal assistant, powered by AI. It can help you with your daily
 ## Requirements
 - Python 3.11.6
 - Linux or Windows (MacOS is untested)
-- (dev) pre-commit
 
 ## Setup
 1. Create a new virtual environment
