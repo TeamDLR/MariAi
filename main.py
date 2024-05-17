@@ -2,19 +2,23 @@
 # and so on...
 import tkinter
 
-from external.ActionRecognition import  run_action_recognition
+from external.ActionRecognition import run_action_recognition
 
 
 def do_nothing():
     print("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
 
 def real_action_recognition():
     USE_WEBCAM = False
     cam_id = 0
     video_file = "https://archive.org/serve/ISSVideoResourceLifeOnStation720p/ISS%20Video%20Resource_LifeOnStation_720p.mp4"
     source = cam_id if USE_WEBCAM else video_file
-    additional_options = {"skip_first_frames": 600, "flip": False} if not USE_WEBCAM else {"flip": True}
+    additional_options = (
+        {"skip_first_frames": 600, "flip": False} if not USE_WEBCAM else {"flip": True}
+    )
     run_action_recognition(source=source, use_popup=True, **additional_options)
+
 
 window = tkinter.Tk()
 window.title("Axela - your personal assistant")

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 
 # In[ ]:
 
@@ -13,9 +12,8 @@ from pathlib import Path
 from typing import List, NamedTuple, Optional, Tuple
 
 import numpy as np
-from openvino.runtime import Core, get_version
 from IPython.display import HTML, Image, display
-
+from openvino.runtime import Core, get_version
 
 # ## Files
 #
@@ -71,8 +69,8 @@ def download_file(
     :param timeout: Number of seconds before cancelling the connection attempt
     :return: path to downloaded file
     """
-    from tqdm.notebook import tqdm_notebook
     import requests
+    from tqdm.notebook import tqdm_notebook
 
     filename = filename or Path(urllib.parse.urlparse(url).path).name
     chunk_size = 16384  # make chunks bigger so that not too many updates are triggered for Jupyter front-end
@@ -91,7 +89,9 @@ def download_file(
         filename = directory / Path(filename)
 
     try:
-        response = requests.get(url=url, headers={"User-agent": "Mozilla/5.0"}, stream=True)
+        response = requests.get(
+            url=url, headers={"User-agent": "Mozilla/5.0"}, stream=True
+        )
         response.raise_for_status()
     except (
         requests.exceptions.HTTPError
@@ -130,7 +130,9 @@ def download_file(
     return filename.resolve()
 
 
-def download_ir_model(model_xml_url: str, destination_folder: PathLike = None) -> PathLike:
+def download_ir_model(
+    model_xml_url: str, destination_folder: PathLike = None
+) -> PathLike:
     """
     Download IR model from `model_xml_url`. Downloads model xml and bin file; the weights file is
     assumed to exist at the same location and name as model_xml_url with a ".bin" extension.
@@ -141,7 +143,9 @@ def download_ir_model(model_xml_url: str, destination_folder: PathLike = None) -
     :return: path to downloaded xml model file
     """
     model_bin_url = model_xml_url[:-4] + ".bin"
-    model_xml_path = download_file(model_xml_url, directory=destination_folder, show_progress=False)
+    model_xml_path = download_file(
+        model_xml_url, directory=destination_folder, show_progress=False
+    )
     download_file(model_bin_url, directory=destination_folder)
     return model_xml_path
 
@@ -160,7 +164,10 @@ def normalize_minmax(data):
     Normalizes the values in `data` between 0 and 1
     """
     if data.max() == data.min():
-        raise ValueError("Normalization is not possible because all elements of" f"`data` have the same value: {data.max()}.")
+        raise ValueError(
+            "Normalization is not possible because all elements of"
+            f"`data` have the same value: {data.max()}."
+        )
     return (data - data.min()) / (data.max() - data.min())
 
 
@@ -209,7 +216,9 @@ class VideoPlayer:
         self.cv2 = cv2  # This is done to access the package in class methods
         self.__cap = cv2.VideoCapture(source)
         if not self.__cap.isOpened():
-            raise RuntimeError(f"Cannot open {'camera' if isinstance(source, int) else ''} {source}")
+            raise RuntimeError(
+                f"Cannot open {'camera' if isinstance(source, int) else ''} {source}"
+            )
         # skip first N frames
         self.__cap.set(cv2.CAP_PROP_POS_FRAMES, skip_first_frames)
         # fps of input file
@@ -224,7 +233,11 @@ class VideoPlayer:
         if size is not None:
             self.__size = size
             # AREA better for shrinking, LINEAR better for enlarging
-            self.__interpolation = cv2.INTER_AREA if size[0] < self.__cap.get(cv2.CAP_PROP_FRAME_WIDTH) else cv2.INTER_LINEAR
+            self.__interpolation = (
+                cv2.INTER_AREA
+                if size[0] < self.__cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+                else cv2.INTER_LINEAR
+            )
         # first frame
         _, self.__frame = self.__cap.read()
         self.__lock = threading.Lock()
@@ -278,15 +291,15 @@ class VideoPlayer:
     """
 
     def next(self):
-        import cv2
-
         with self.__lock:
             if self.__frame is None:
                 return None
             # need to copy frame, because can be cached and reused if fps is low
             frame = self.__frame.copy()
         if self.__size is not None:
-            frame = self.cv2.resize(frame, self.__size, interpolation=self.__interpolation)
+            frame = self.cv2.resize(
+                frame, self.__size, interpolation=self.__interpolation
+            )
         if self.__flip:
             frame = self.cv2.flip(frame, 1)
         return frame
@@ -363,7 +376,9 @@ BinarySegmentation = SegmentationMap(binary_labels)
 # In[ ]:
 
 
-def segmentation_map_to_image(result: np.ndarray, colormap: np.ndarray, remove_holes: bool = False) -> np.ndarray:
+def segmentation_map_to_image(
+    result: np.ndarray, colormap: np.ndarray, remove_holes: bool = False
+) -> np.ndarray:
     """
     Convert network result of floating point numbers to an RGB image with
     integer values from 0-255 by applying a colormap.
@@ -376,7 +391,9 @@ def segmentation_map_to_image(result: np.ndarray, colormap: np.ndarray, remove_h
     import cv2
 
     if len(result.shape) != 2 and result.shape[0] != 1:
-        raise ValueError(f"Expected result with shape (H,W) or (1,H,W), got result with shape {result.shape}")
+        raise ValueError(
+            f"Expected result with shape (H,W) or (1,H,W), got result with shape {result.shape}"
+        )
 
     if len(np.unique(result)) > colormap.shape[0]:
         raise ValueError(
@@ -394,7 +411,9 @@ def segmentation_map_to_image(result: np.ndarray, colormap: np.ndarray, remove_h
     for label_index, color in enumerate(colormap):
         label_index_map = result == label_index
         label_index_map = label_index_map.astype(np.uint8) * 255
-        contours, hierarchies = cv2.findContours(label_index_map, contour_mode, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchies = cv2.findContours(
+            label_index_map, contour_mode, cv2.CHAIN_APPROX_SIMPLE
+        )
         cv2.drawContours(
             mask,
             contours,
@@ -406,7 +425,9 @@ def segmentation_map_to_image(result: np.ndarray, colormap: np.ndarray, remove_h
     return mask
 
 
-def segmentation_map_to_overlay(image, result, alpha, colormap, remove_holes=False) -> np.ndarray:
+def segmentation_map_to_overlay(
+    image, result, alpha, colormap, remove_holes=False
+) -> np.ndarray:
     """
     Returns a new image where a segmentation mask (created with colormap) is overlayed on
     the source image.
@@ -468,7 +489,9 @@ def viz_result_image(
     if bgr_to_rgb:
         source_image = to_rgb(source_image)
     if resize:
-        result_image = cv2.resize(result_image, (source_image.shape[1], source_image.shape[0]))
+        result_image = cv2.resize(
+            result_image, (source_image.shape[1], source_image.shape[0])
+        )
 
     num_images = 1 if source_image is None else 2
 
@@ -564,12 +587,20 @@ class DeviceNotFoundAlert(NotebookAlert):
         """
         ie = Core()
         supported_devices = ie.available_devices
-        self.message = f"Running this cell requires a {device} device, " "which is not available on this system. "
+        self.message = (
+            f"Running this cell requires a {device} device, "
+            "which is not available on this system. "
+        )
         self.alert_class = "warning"
         if len(supported_devices) == 1:
-            self.message += f"The following device is available: {ie.available_devices[0]}"
+            self.message += (
+                f"The following device is available: {ie.available_devices[0]}"
+            )
         else:
-            self.message += "The following devices are available: " f"{', '.join(ie.available_devices)}"
+            self.message += (
+                "The following devices are available: "
+                f"{', '.join(ie.available_devices)}"
+            )
         super().__init__(self.message, self.alert_class)
 
 

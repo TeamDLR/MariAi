@@ -1,24 +1,24 @@
 # %% [markdown]
 # # Human Action Recognition with OpenVINO™
-# 
+#
 # This notebook demonstrates live human action recognition with OpenVINO, using the [Action Recognition Models](https://docs.openvino.ai/2020.2/usergroup13.html) from [Open Model Zoo](https://github.com/openvinotoolkit/open_model_zoo), specifically an [Encoder](https://docs.openvino.ai/2020.2/_models_intel_action_recognition_0001_encoder_description_action_recognition_0001_encoder.html) and a [Decoder](https://docs.openvino.ai/2020.2/_models_intel_action_recognition_0001_decoder_description_action_recognition_0001_decoder.html). Both models create a sequence to sequence (`"seq2seq"`) \[1\] system to identify the human activities for [Kinetics-400 dataset](https://deepmind.com/research/open-source/kinetics). The models use the Video Transformer approach with ResNet34 encoder \[2\]. The notebook shows how to create the following pipeline:
-# 
+#
 # <img align='center' src="https://user-images.githubusercontent.com/10940214/148401661-477aebcd-f2d0-4771-b107-4b37f94d0b1e.jpeg" alt="drawing" width="1000"/>
-# 
+#
 # Final part of this notebook shows live inference results from a webcam. Additionally, you can also upload a video file.
-# 
+#
 # **NOTE**: To use a webcam, you must run this Jupyter notebook on a computer with a webcam. If you run on a server, the webcam will not work. However, you can still do inference on a video in the final step.
-# 
+#
 # ---
-# 
+#
 # \[1\] seq2seq: Deep learning models that take a sequence of items to the input and output. In this case, input: video frames, output: actions sequence. This `"seq2seq"` is composed of an encoder and a decoder. The encoder captures `"context"` of the inputs to be analyzed by the decoder, and finally gets the human action and confidence.
-# 
+#
 # \[2\] [Video Transformer](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)) and [ResNet34](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet34.html).
-# 
-# 
-# 
+#
+#
+#
 # #### Table of contents:
-# 
+#
 # - [Imports](#Imports)
 # - [The models](#The-models)
 #     - [Download the models](#Download-the-models)
@@ -30,52 +30,51 @@
 #     - [AI Functions](#AI-Functions)
 #     - [Main Processing Function](#Main-Processing-Function)
 #     - [Run Action Recognition](#Run-Action-Recognition)
-# 
-# 
+#
+#
 
 # %%
-#%pip install -q "openvino>=2024.0.0" "opencv-python" "tqdm"
+# %pip install -q "openvino>=2024.0.0" "opencv-python" "tqdm"
 
 # %% [markdown]
 # ## Imports
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 
 # %%
 import collections
 import os
 import time
-from typing import Tuple, List
-
 from pathlib import Path
+from typing import List, Tuple
 
 import cv2
+import ipywidgets as widgets
 import numpy as np
-from IPython import display
 import openvino as ov
+import requests
+from IPython import display
 from openvino.runtime.ie_api import CompiledModel
 
-# Fetch `notebook_utils` module
-import requests
+import notebook_utils as utils
 
 r = requests.get(
     url="https://raw.githubusercontent.com/openvinotoolkit/openvino_notebooks/latest/utils/notebook_utils.py",
 )
 open("notebook_utils.py", "w").write(r.text)
-import notebook_utils as utils
 
 # %% [markdown]
 # ## The models
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 # ### Download the models
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 # Use the `download_ir_model`, a function from the `notebook_utils` file. It automatically creates a directory structure and downloads the selected model.
-# 
+#
 # In this case you can use `"action-recognition-0001"` as a model name, and the system automatically downloads the two models `"action-recognition-0001-encoder"` and `"action-recognition-0001-decoder"`
-# 
-# > **NOTE**: If you want to download another model, such as `"driver-action-recognition-adas-0002"` (`"driver-action-recognition-adas-0002-encoder"` + `"driver-action-recognition-adas-0002-decoder"`), replace the name of the model in the code below. Using a model outside the list can require different pre- and post-processing. 
+#
+# > **NOTE**: If you want to download another model, such as `"driver-action-recognition-adas-0002"` (`"driver-action-recognition-adas-0002-encoder"` + `"driver-action-recognition-adas-0002-decoder"`), replace the name of the model in the code below. Using a model outside the list can require different pre- and post-processing.
 
 # %%
 # A directory where the model will be downloaded.
@@ -97,9 +96,9 @@ if not os.path.exists(model_path_encoder):
 # %% [markdown]
 # ### Load your labels
 # [back to top ⬆️](#Table-of-contents:)
-# 
-# This tutorial uses [Kinetics-400 dataset](https://deepmind.com/research/open-source/kinetics), and also provides the text file embedded into this notebook. 
-# 
+#
+# This tutorial uses [Kinetics-400 dataset](https://deepmind.com/research/open-source/kinetics), and also provides the text file embedded into this notebook.
+#
 # > **NOTE**: If you want to run `"driver-action-recognition-adas-0002"` model, replace the `kinetics.txt` file to `driver_actions.txt`.
 
 # %%
@@ -117,21 +116,21 @@ print(labels[0:9], np.shape(labels))
 # %% [markdown]
 # ### Load the models
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 # Load the two models for this particular architecture, Encoder and Decoder. Downloaded models are located in a fixed structure, indicating a vendor, the name of the model, and a precision.
-# 
+#
 #  1. Initialize OpenVINO Runtime.
 #  2. Read the network from `*.bin` and `*.xml` files (weights and architecture).
 #  3. Compile the model for specified device.
 #  4. Get input and output names of nodes.
-# 
+#
 # Only a few lines of code are required to run the model.
 
 # %% [markdown]
 # Select device from dropdown list for running inference using OpenVINO
 
 # %%
-import ipywidgets as widgets
+
 
 core = ov.Core()
 device = widgets.Dropdown(
@@ -146,7 +145,7 @@ device
 # %% [markdown]
 # #### Model Initialization function
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 
 # %%
 # Initialize OpenVINO Runtime.
@@ -176,16 +175,21 @@ def model_init(model_path: str, device: str) -> Tuple:
     output_keys = compiled_model.output(0)
     return input_keys, output_keys, compiled_model
 
+
 # %% [markdown]
 # #### Initialization for Encoder and Decoder
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 
 # %%
 # Encoder initialization
-input_key_en, output_keys_en, compiled_model_en = model_init(model_path_encoder, device.value)
+input_key_en, output_keys_en, compiled_model_en = model_init(
+    model_path_encoder, device.value
+)
 # Decoder initialization
-input_key_de, output_keys_de, compiled_model_de = model_init(model_path_decoder, device.value)
+input_key_de, output_keys_de, compiled_model_de = model_init(
+    model_path_decoder, device.value
+)
 
 # Get input size - Encoder.
 height_en, width_en = list(input_key_en.shape)[2:]
@@ -195,13 +199,14 @@ frames2decode = list(input_key_de.shape)[0:][1]
 # %% [markdown]
 # ### Helper functions
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 # Use the following helper functions for preprocessing and postprocessing frames:
-# 
+#
 # 1. Preprocess the input image before running the Encoder model. (`center_crop` and `adaptative_resize`)
 # 2. Decode top-3 probabilities into label names. (`decode_output`)
 # 3. Draw the Region of Interest (ROI) over the video. (`rec_frame_display`)
 # 4. Prepare the frame for displaying label names over the video. (`display_text_fnc`)
+
 
 # %%
 def center_crop(frame: np.ndarray) -> np.ndarray:
@@ -263,14 +268,30 @@ def rec_frame_display(frame: np.ndarray, roi) -> np.ndarray:
 
     """
 
-    cv2.line(frame, (roi[2] + 3, roi[0] + 3), (roi[2] + 3, roi[0] + 100), (0, 200, 0), 2)
-    cv2.line(frame, (roi[2] + 3, roi[0] + 3), (roi[2] + 100, roi[0] + 3), (0, 200, 0), 2)
-    cv2.line(frame, (roi[3] - 3, roi[1] - 3), (roi[3] - 3, roi[1] - 100), (0, 200, 0), 2)
-    cv2.line(frame, (roi[3] - 3, roi[1] - 3), (roi[3] - 100, roi[1] - 3), (0, 200, 0), 2)
-    cv2.line(frame, (roi[3] - 3, roi[0] + 3), (roi[3] - 3, roi[0] + 100), (0, 200, 0), 2)
-    cv2.line(frame, (roi[3] - 3, roi[0] + 3), (roi[3] - 100, roi[0] + 3), (0, 200, 0), 2)
-    cv2.line(frame, (roi[2] + 3, roi[1] - 3), (roi[2] + 3, roi[1] - 100), (0, 200, 0), 2)
-    cv2.line(frame, (roi[2] + 3, roi[1] - 3), (roi[2] + 100, roi[1] - 3), (0, 200, 0), 2)
+    cv2.line(
+        frame, (roi[2] + 3, roi[0] + 3), (roi[2] + 3, roi[0] + 100), (0, 200, 0), 2
+    )
+    cv2.line(
+        frame, (roi[2] + 3, roi[0] + 3), (roi[2] + 100, roi[0] + 3), (0, 200, 0), 2
+    )
+    cv2.line(
+        frame, (roi[3] - 3, roi[1] - 3), (roi[3] - 3, roi[1] - 100), (0, 200, 0), 2
+    )
+    cv2.line(
+        frame, (roi[3] - 3, roi[1] - 3), (roi[3] - 100, roi[1] - 3), (0, 200, 0), 2
+    )
+    cv2.line(
+        frame, (roi[3] - 3, roi[0] + 3), (roi[3] - 3, roi[0] + 100), (0, 200, 0), 2
+    )
+    cv2.line(
+        frame, (roi[3] - 3, roi[0] + 3), (roi[3] - 100, roi[0] + 3), (0, 200, 0), 2
+    )
+    cv2.line(
+        frame, (roi[2] + 3, roi[1] - 3), (roi[2] + 3, roi[1] - 100), (0, 200, 0), 2
+    )
+    cv2.line(
+        frame, (roi[2] + 3, roi[1] - 3), (roi[2] + 100, roi[1] - 3), (0, 200, 0), 2
+    )
     # Write ROI over actual frame
     FONT_STYLE = cv2.FONT_HERSHEY_SIMPLEX
     org = (roi[2] + 3, roi[1] - 3)
@@ -309,18 +330,20 @@ def display_text_fnc(frame: np.ndarray, display_text: str, index: int):
     cv2.putText(frame, display_text, text_loc2, FONT_STYLE, FONT_SIZE, FONT_COLOR2)
     cv2.putText(frame, display_text, text_loc, FONT_STYLE, FONT_SIZE, FONT_COLOR)
 
+
 # %% [markdown]
 # ### AI Functions
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 # <img align='center' src="https://user-images.githubusercontent.com/10940214/148401661-477aebcd-f2d0-4771-b107-4b37f94d0b1e.jpeg" alt="drawing" width="1000"/>
-# 
+#
 # Following the pipeline above, you will use the next functions to:
-# 
+#
 # 1. Preprocess a frame before running the Encoder. (`preprocessing`)
 # 2. Encoder Inference per frame. (`encoder`)
 # 3. Decoder inference per set of frames. (`decoder`)
 # 4. Normalize the Decoder output to get confidence values per action recognition label. (`softmax`)
+
 
 # %%
 def preprocessing(frame: np.ndarray, size: int) -> np.ndarray:
@@ -397,16 +420,18 @@ def softmax(x: np.ndarray) -> np.ndarray:
     exp = np.exp(x)
     return exp / np.sum(exp, axis=None)
 
+
 # %% [markdown]
 # ### Main Processing Function
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 # Running action recognition function will run in different operations, either a webcam or a video file. See the list of procedures below:
-# 
+#
 # 1. Create a video player to play with target fps (`utils.VideoPlayer`).
 # 2. Prepare a set of frames to be encoded-decoded.
 # 3. Run AI functions
 # 4. Visualize the results.
+
 
 # %%
 def run_action_recognition(
@@ -440,7 +465,9 @@ def run_action_recognition(
     player = None
     try:
         # Create a video player.
-        player = utils.VideoPlayer(source, flip=flip, fps=fps, skip_first_frames=skip_first_frames)
+        player = utils.VideoPlayer(
+            source, flip=flip, fps=fps, skip_first_frames=skip_first_frames
+        )
         # Start capturing.
         player.start()
         if use_popup:
@@ -470,7 +497,9 @@ def run_action_recognition(
 
             # Adaptative resize for visualization.
             if scale < 1:
-                frame = cv2.resize(frame, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+                frame = cv2.resize(
+                    frame, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA
+                )
 
             # Select one frame every two for processing through the encoder.
             # After 16 frames are processed, the decoder will find the action,
@@ -489,7 +518,9 @@ def run_action_recognition(
                 # Decoder inference per set of frames
                 # Wait for sample duration to work with decoder model.
                 if len(encoder_output) == sample_duration:
-                    decoded_labels, decoded_top_probs = decoder(encoder_output, compiled_model_de)
+                    decoded_labels, decoded_top_probs = decoder(
+                        encoder_output, compiled_model_de
+                    )
                     encoder_output = []
 
                 # Inference has finished. Display the results.
@@ -526,7 +557,9 @@ def run_action_recognition(
                     break
             else:
                 # Encode numpy array to jpg.
-                _, encoded_img = cv2.imencode(".jpg", frame, params=[cv2.IMWRITE_JPEG_QUALITY, 90])
+                _, encoded_img = cv2.imencode(
+                    ".jpg", frame, params=[cv2.IMWRITE_JPEG_QUALITY, 90]
+                )
                 # Create an IPython image.
                 i = display.Image(data=encoded_img)
                 # Display the image in this notebook.
@@ -546,14 +579,15 @@ def run_action_recognition(
         if use_popup:
             cv2.destroyAllWindows()
 
+
 # %% [markdown]
 # ### Run Action Recognition
 # [back to top ⬆️](#Table-of-contents:)
-# 
+#
 # Find out how the model works in a video file. [Any format supported](https://docs.opencv.org/4.5.1/dd/d43/tutorial_py_video_display.html) by OpenCV will work. You can press the stop button anytime while the video file is running, and it will activate the webcam for the next step.
-# 
+#
 # > **NOTE**: Sometimes, the video can be cut off if there are corrupted frames. In that case, you can convert it. If you experience any problems with your video, use the [HandBrake](https://handbrake.fr/) and select the MPEG format.
-# 
+#
 # if you want to use a web camera as an input source for the demo, please change the value of `USE_WEBCAM` variable to True and specify `cam_id` (the default value is 0, which can be different in multi-camera systems).
 
 # %%
@@ -565,5 +599,3 @@ def run_action_recognition(
 # source = cam_id if USE_WEBCAM else video_file
 # additional_options = {"skip_first_frames": 600, "flip": False} if not USE_WEBCAM else {"flip": True}
 # run_action_recognition(source=source, use_popup=False, **additional_options)
-
-
