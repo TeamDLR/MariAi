@@ -3,6 +3,7 @@
 import tkinter
 
 from external.ActionRecognition import run_action_recognition
+from external.TextToSpeech import run_text_to_speech
 
 
 def do_nothing():
@@ -18,6 +19,13 @@ def real_action_recognition():
         {"skip_first_frames": 600, "flip": False} if not USE_WEBCAM else {"flip": True}
     )
     run_action_recognition(source=source, use_popup=True, **additional_options)
+
+
+def real_text_to_speech():
+    filepath = "__pycache__/output.mp3"
+    user_input = input("Inserisci qualcosa: ")
+
+    run_text_to_speech(user_input, filepath)
 
 
 window = tkinter.Tk()
@@ -36,7 +44,7 @@ for widget in info_frame.winfo_children():
 button = tkinter.Button(frame, text="Action Recog", command=real_action_recognition)
 button.grid(row=0, column=0, sticky="news", padx=20, pady=10)
 
-button = tkinter.Button(frame, text="Text To Speech", command=do_nothing)
+button = tkinter.Button(frame, text="Text To Speech", command=real_text_to_speech)
 button.grid(row=0, column=2, sticky="news", padx=20, pady=10)
 
 button = tkinter.Button(frame, text="Speech To Text", command=do_nothing)
