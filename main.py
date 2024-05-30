@@ -3,9 +3,8 @@
 import tkinter
 
 from external.ActionRecognition import run_action_recognition
-from external.TextToSpeech import run_text_to_speech
 from external.SpeechToText import run_speech_to_text
-
+from external.TextToSpeech import run_text_to_speech
 
 
 def do_nothing():
@@ -28,8 +27,11 @@ def real_text_to_speech():
     user_input = input("Inserisci qualcosa: ")
 
     run_text_to_speech(user_input, filepath)
+
+
 def real_speech_to_text():
     run_speech_to_text()
+
 
 window = tkinter.Tk()
 window.title("Axela - your personal assistant")
