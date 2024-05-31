@@ -3,6 +3,7 @@
 import tkinter
 
 from external.ActionRecognition import run_action_recognition
+from external.SpeechToText import run_speech_to_text
 from external.TextToSpeech import run_text_to_speech
 
 
@@ -22,10 +23,14 @@ def real_action_recognition():
 
 
 def real_text_to_speech():
-    filepath = "__pycache__/output.mp3"
+    filepath = "./output.mp3"
     user_input = input("Inserisci qualcosa: ")
 
     run_text_to_speech(user_input, filepath)
+
+
+def real_speech_to_text():
+    run_speech_to_text()
 
 
 window = tkinter.Tk()
@@ -47,7 +52,7 @@ button.grid(row=0, column=0, sticky="news", padx=20, pady=10)
 button = tkinter.Button(frame, text="Text To Speech", command=real_text_to_speech)
 button.grid(row=0, column=2, sticky="news", padx=20, pady=10)
 
-button = tkinter.Button(frame, text="Speech To Text", command=do_nothing)
+button = tkinter.Button(frame, text="Speech To Text", command=real_speech_to_text)
 button.grid(row=0, column=4, sticky="news", padx=20, pady=10)
 
 button = tkinter.Button(frame, text="Show Graphs", command=do_nothing)

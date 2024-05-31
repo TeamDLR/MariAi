@@ -25,7 +25,7 @@ pip install -r requirements.txt
 
 4. Install tkinter
 ```
-sudo apt-get install python3-tk
+sudo apt-get install python3-tk portaudio19-dev python3-pyaudio
 ```
 
 5. (development) Install and run `pre-commit` hook in the repo:
