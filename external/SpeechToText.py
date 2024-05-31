@@ -15,6 +15,7 @@ def run_speech_to_text():
         )
 
     device_index = 3
+    # Damiano: device_index = 5 su linux
 
     info = p.get_device_info_by_index(device_index)
     if info["maxInputChannels"] == 0:
