@@ -4,7 +4,7 @@ import os
 import tkinter
 
 from external.ActionRecognition import run_action_recognition
-from external.ChatBot import Chatbot
+from external.Chatbot import Chatbot
 from external.SpeechToText import run_speech_to_text
 from external.TextToSpeech import run_text_to_speech
 
