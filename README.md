@@ -34,7 +34,10 @@ pre-commit install
 pre-commit run --all
 ```
 
-6. Run the application
+6. (optional) Generate OpenAI API key through **https://platform.openai.com/api-keys** and paste it into `secrets.env` file. See `secrets.env.sample` for more information
+
+
+7. Run the application
 ```
 python main.py
 ```

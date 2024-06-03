@@ -169,3 +169,4 @@ openvino_env/*
 openvino_notebooks/*
 
 *.mp3
+*.env

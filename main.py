@@ -1,10 +1,23 @@
 # from external.TTSRecognition import text_to_speech
 # and so on...
+import os
 import tkinter
 
 from external.ActionRecognition import run_action_recognition
+from external.ChatBot import Chatbot
 from external.SpeechToText import run_speech_to_text
 from external.TextToSpeech import run_text_to_speech
+
+# Load environment variables from .env file
+try:
+    with open("secrets.env") as f:
+        for line in f:
+            key, value = line.strip().split("=")
+            os.environ[key] = value
+except FileNotFoundError:
+    print(
+        "\n[WARNING] No secrets.env file found. Please create one with the required keys. External APIs will not work.\n"
+    )
 
 
 def do_nothing():
@@ -33,6 +46,12 @@ def real_speech_to_text():
     run_speech_to_text()
 
 
+def real_chatbot():
+    Chatbot(openai_api_key=os.environ["OPENAI_API_KEY"]).send_chatgpt_request(
+        "Cooking", "Can you find some recipies?"
+    )
+
+
 window = tkinter.Tk()
 window.title("Axela - your personal assistant")
 
@@ -58,7 +77,7 @@ button.grid(row=0, column=4, sticky="news", padx=20, pady=10)
 button = tkinter.Button(frame, text="Show Graphs", command=do_nothing)
 button.grid(row=0, column=6, sticky="news", padx=20, pady=10)
 
-button = tkinter.Button(frame, text="Questo bottone non fa niente", command=do_nothing)
-button.grid(row=0, column=8, sticky="news", padx=20, pady=10)
+button = tkinter.Button(frame, text="Chatbot", command=real_chatbot)
+button.grid(row=0, column=8, sticky="news", padx=20, pady=12)
 
 window.mainloop()
