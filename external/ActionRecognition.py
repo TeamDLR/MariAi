@@ -441,6 +441,7 @@ def run_action_recognition(
     compiled_model_en: CompiledModel = compiled_model_en,
     compiled_model_de: CompiledModel = compiled_model_de,
     skip_first_frames: int = 0,
+    threshold: float = 0.5,
 ):
     """
     Use the "source" webcam or video file to run the complete pipeline for action-recognition problem
@@ -543,6 +544,11 @@ def run_action_recognition(
                     label=decoded_labels[i],
                     conf=decoded_top_probs[i] * 100,
                 )
+
+                #  cv2.destroyAllWindows()
+                if decoded_labels[0] and decoded_top_probs[0] > threshold:
+                    return decoded_labels[0]
+
                 display_text_fnc(frame, display_text, i)
 
             display_text = text_inference_template.format(Time=processing_time, fps=fps)

@@ -32,7 +32,9 @@ def real_action_recognition():
     additional_options = (
         {"skip_first_frames": 600, "flip": False} if not USE_WEBCAM else {"flip": True}
     )
-    run_action_recognition(source=source, use_popup=True, **additional_options)
+    return run_action_recognition(
+        source=source, use_popup=True, threshold=0.5, **additional_options
+    )
 
 
 def real_text_to_speech():
@@ -50,6 +52,23 @@ def real_chatbot():
     Chatbot(openai_api_key=os.environ["OPENAI_API_KEY"]).send_chatgpt_request(
         "Cooking", "Can you find some recipies?"
     )
+
+
+def demo_all_in_one():
+    # Step 1: Show the video and recognize action
+    action = real_action_recognition()
+    print(f"Action recognized: {action}")
+
+    # Step 2: Use the action to form a question
+    question = f"How to be better at {action}?"
+
+    # Step 3: Get response from OpenAI
+    chatbot = Chatbot(openai_api_key=os.environ["OPENAI_API_KEY"])
+    response = chatbot.send_chatgpt_request(action, question)
+
+    # Step 4: Convert the response to speech
+    filepath = "output.mp3"
+    run_text_to_speech(response, filepath)
 
 
 window = tkinter.Tk()
@@ -79,5 +98,8 @@ button.grid(row=0, column=6, sticky="news", padx=20, pady=10)
 
 button = tkinter.Button(frame, text="Chatbot", command=real_chatbot)
 button.grid(row=0, column=8, sticky="news", padx=20, pady=12)
+
+button = tkinter.Button(frame, text="Demo All-in-One", command=demo_all_in_one)
+button.grid(row=0, column=10, sticky="news", padx=20, pady=12)
 
 window.mainloop()
