@@ -14,7 +14,7 @@ def run_speech_to_text(language="en-US"):
             f"Device {i}: {info['name']} - Input Channels: {info['maxInputChannels']}"
         )
 
-    device_index = 3
+    device_index = 0
     # Damiano: device_index = 5 su linux
 
     info = p.get_device_info_by_index(device_index)

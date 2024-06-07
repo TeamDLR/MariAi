@@ -7,7 +7,10 @@ def play_audio(source):
     """
     Play Audio using pydub library
     """
-    play(AudioSegment.from_mp3(source))
+    audio = AudioSegment.from_mp3(source)
+    speed_factor = 1.2
+    sped_up_audio = audio.speedup(playback_speed=speed_factor)
+    play(sped_up_audio)
 
 
 def generate_audio(user_input, filepath):

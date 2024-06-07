@@ -27,7 +27,10 @@ def do_nothing():
 def real_action_recognition():
     USE_WEBCAM = False
     cam_id = 0
-    video_file = "https://archive.org/serve/ISSVideoResourceLifeOnStation720p/ISS%20Video%20Resource_LifeOnStation_720p.mp4"
+    # video_file_2 = "https://archive.org/serve/ISSVideoResourceLifeOnStation720p/ISS%20Video%20Resource_LifeOnStation_720p.mp4"
+    # video_file_3 = "https://ia801304.us.archive.org/13/items/bctvnj-Cooking_Eggs_for_Family/Cooking_Eggs_for_Family.mpeg4"
+    # video_file_4 = "https://dn720404.ca.archive.org/0/items/80-year-old-man-chopping-wood/80%20Year%20Old%20Man%20Chopping%20Wood.mp4"
+    video_file = "https://ia600609.us.archive.org/26/items/Game_of_the_Week_Play_of_the_Game_-_Charles_Alexander_Block_Basket_and_1/Game_of_the_Week_Play_of_the_Game_-_Charles_Alexander_Block_Basket_and_1.mp4"
     source = cam_id if USE_WEBCAM else video_file
     additional_options = (
         {"skip_first_frames": 600, "flip": False} if not USE_WEBCAM else {"flip": True}
@@ -57,10 +60,10 @@ def real_chatbot():
 def demo_all_in_one():
     # Step 0: STT
     text = real_speech_to_text(language_code="it-IT").lower()
-    
+
     if "maria" in text:
         text = text.split("maria")[1]
-    
+
     print(f"What you said: {text}")
 
     # Step 1: Show the video and recognize action
@@ -73,6 +76,8 @@ def demo_all_in_one():
     # Step 3: Get response from OpenAI
     chatbot = Chatbot(openai_api_key=os.environ["OPENAI_API_KEY"])
     response = chatbot.send_chatgpt_request(action, question)
+
+    print(f"CHATGPT: {response}")
 
     # Step 4: Convert the response to speech
     filepath = "output.mp3"
