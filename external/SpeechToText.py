@@ -4,7 +4,7 @@ import speech_recognition as sr
 from pynput import keyboard
 
 
-def run_speech_to_text():
+def run_speech_to_text(language="en-US"):
     p = pyaudio.PyAudio()
 
     print("Dispositivi audio disponibili:")
@@ -14,7 +14,7 @@ def run_speech_to_text():
             f"Device {i}: {info['name']} - Input Channels: {info['maxInputChannels']}"
         )
 
-    device_index = 3
+    device_index = 0
     # Damiano: device_index = 5 su linux
 
     info = p.get_device_info_by_index(device_index)
@@ -53,8 +53,9 @@ def run_speech_to_text():
     audio = listen_audio()
 
     try:
-        text = r.recognize_google(audio, language="en-US ")
-        print("Testo riconosciuto: " + text)
+        text = r.recognize_google(audio, language=language)
+        # print("Testo riconosciuto: " + text)
+        return text
     except sr.UnknownValueError:
         print("Google Speech Recognition non ha capito l'audio")
     except sr.RequestError as e:

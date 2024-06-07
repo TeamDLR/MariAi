@@ -18,7 +18,7 @@ class Chatbot:
         if base_context:
             self.base_context = base_context
         else:
-            self.base_context = "You are Axela, a home assistant that respond briefly based on the action and prompt written on the prompt. You will ignore the Action if it has nothing to do with the prompt"
+            self.base_context = "You are Axela, an assistant that respond briefly based on the action and prompt written on the prompt. You will ignore the Action if it has nothing to do with the prompt"
 
     def send_chatgpt_request(self, action, prompt):
         data = {
@@ -40,5 +40,6 @@ class Chatbot:
         # Check if the request was successful
         if response.status_code == 200:
             print(response.json()["choices"][0]["message"]["content"])
+            return response.json()["choices"][0]["message"]["content"]
         else:
             print("Error:", response.status_code, response.text)
