@@ -44,8 +44,8 @@ def real_text_to_speech():
     run_text_to_speech(user_input, filepath)
 
 
-def real_speech_to_text():
-    run_speech_to_text()
+def real_speech_to_text(language_code="en-US"):
+    return run_speech_to_text(language_code)
 
 
 def real_chatbot():
@@ -55,12 +55,20 @@ def real_chatbot():
 
 
 def demo_all_in_one():
+    # Step 0: STT
+    text = real_speech_to_text(language_code="it-IT").lower()
+    
+    if "maria" in text:
+        text = text.split("maria")[1]
+    
+    print(f"What you said: {text}")
+
     # Step 1: Show the video and recognize action
     action = real_action_recognition()
     print(f"Action recognized: {action}")
 
     # Step 2: Use the action to form a question
-    question = f"How to be better at {action}?"
+    question = f"{text}"
 
     # Step 3: Get response from OpenAI
     chatbot = Chatbot(openai_api_key=os.environ["OPENAI_API_KEY"])
