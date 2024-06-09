@@ -1,7 +1,9 @@
-# Axela
-![foto-dell-eventuale-interfaccia](foto-dell-eventuale-interfaccia.jpg)
+# MariaAI
+![foto-dell-eventuale-interfaccia](pictures/main.png)
 
-Axela is your personal assistant, powered by AI. It can help you with your daily tasks, like sending emails, setting up reminders, and much more.
+MariaAI (Maria) is your personal assistant, powered by AI. It can help you with your daily tasks, like giving you tips on how to improve your productivity, or even help you with your homework.
+
+Maria is powered by OpenAI's GPT-3.5, which allows her to generate human-like responses to your questions.
 
 ## Requirements
 - Python 3.11.6
@@ -23,7 +25,7 @@ source .env/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Install tkinter
+4. (Linux) Install via apt these packages
 ```
 sudo apt-get install python3-tk portaudio19-dev python3-pyaudio
 ```
@@ -43,8 +45,13 @@ python main.py
 ```
 
 ## Usage
-Click on a button to start doing something.
 
+Click on the button to start the assistant. You can try the individual features by clicking on the respective buttons.
 
-## Notes
-- Project is in development, so it's not finished yet.
+If you want to try an interactive demo (requires OpenAI Token), click on the "Demo all-in-one" buttons.
+
+## Screenshots
+
+![foto-dell-eventuale-interfaccia](pictures/case1-1.png) ![foto-dell-eventuale-interfaccia](pictures/case1-2.png)
+![foto-dell-eventuale-interfaccia](pictures/case2-1.png) ![foto-dell-eventuale-interfaccia](pictures/case2-2.png)
+![foto-dell-eventuale-interfaccia](pictures/case3-1.png) ![foto-dell-eventuale-interfaccia](pictures/case3-2.png)
