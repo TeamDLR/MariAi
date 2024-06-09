@@ -18,7 +18,7 @@ class Chatbot:
         if base_context:
             self.base_context = base_context
         else:
-            self.base_context = "You are Axela, an assistant that respond briefly based on the action and prompt written on the prompt. You will ignore the Action if it has nothing to do with the prompt"
+            self.base_context = "You are Axela, an assistant that respond brieflY based on the action and prompt written on the prompt."
 
     def send_chatgpt_request(self, action, prompt):
         data = {
