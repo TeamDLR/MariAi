@@ -19,7 +19,7 @@ except FileNotFoundError:
         "\n[WARNING] No secrets.env file found. Please create one with the required keys. External APIs will not work.\n"
     )
 
-def real_action_recognition(video_file="https://archive.org/serve/ISSVideoResourceLifeOnStation720p/ISS%20Video%20Resource_LifeOnStation_720p.mp4"):
+def real_action_recognition(video_file="https://ia600801.us.archive.org/4/items/youtube-HuFNWniMUb0/Green_Day_-_See_you_tonight_guitar_cover-HuFNWniMUb0.mp4"):
     USE_WEBCAM = False
     cam_id = 0
     if not video_file:
@@ -57,12 +57,12 @@ def demo_1():
     demo_all_in_one(video_file)
 
 def demo_2():
-    video_file = "https://ia801304.us.archive.org/13/items/bctvnj-Cooking_Eggs_for_Family/Cooking_Eggs_for_Family.mpeg4"
+    video_file = "https://ia904608.us.archive.org/8/items/cooking-eggs-for-family-online-video-cutter.com-1/Cooking_Eggs_for_Family%20%28online-video-cutter.com%29%20%281%29.mp4"
 
     demo_all_in_one(video_file)
 
 def demo_3():
-    video_file = "https://archive.org/serve/ISSVideoResourceLifeOnStation720p/ISS%20Video%20Resource_LifeOnStation_720p.mp4"
+    video_file = "https://ia600801.us.archive.org/4/items/youtube-HuFNWniMUb0/Green_Day_-_See_you_tonight_guitar_cover-HuFNWniMUb0.mp4"
     demo_all_in_one(video_file)
 
 
@@ -95,7 +95,7 @@ def demo_all_in_one(video_file):
 
 
 window = tkinter.Tk()
-window.title("Axela - your personal assistant")
+window.title("Maria - your personal assistant")
 
 frame = tkinter.Frame(window)
 frame.pack()
